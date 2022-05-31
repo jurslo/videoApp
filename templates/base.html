@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="sk-SK">
+    <head>
+        <title>Video App</title>
+        <style>
+            .filter {
+                width: max-content;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .select {
+                width: min-content;
+            }
+            .video-card {
+                width: min-content;
+                margin: 16px auto;
+                padding: 8px;
+                background-color: whitesmoke;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div>
+            <form class="filter" method="post">
+                <div class="select">
+                    <label for="sort-by">Sort by:</label>
+                    <select name="sort-by" id="sort-by" onchange="this.form.submit()">
+                        <option value="unsorted" {% if sort_by == 'unsorted' %}selected{% endif %}>Unsorted</option>
+                        <option value="name" {% if sort_by == 'name' %}selected{% endif %}>Name</option>
+                    </select>
+                </div>
+            </form>
+            {% for vid in videos %}
+            <div class="video-card">
+                <div>
+                    <img id="video-img" src="{{ vid['iconUri'] }}" alt="{{ vid['name'] }}">
+                </div>
+                <label for="video-img">{{ vid['name'] }}</label>
+            </div>
+            {% endfor %}
+        </div>
+    </body>
+</html>
