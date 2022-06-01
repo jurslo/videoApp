@@ -16,9 +16,7 @@ def index():
     features = {}
     for ftr in feature_names:
         features[ftr] = (request.form.get(f'ftr-{ftr}', 'off') == 'on')
-    videos = db_get_videos([ftr for (ftr, present) in features.items() if present])
-    if sort_by == 'name':
-        videos.sort(key=lambda item: item['name'])
+    videos = db_get_videos([ftr for (ftr, present) in features.items() if present], sort_by == 'name')
     return render_template("base.html", videos=videos, sort_by=sort_by, features=features)
 
 

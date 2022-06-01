@@ -118,11 +118,15 @@ def db_get_all_features():
     return features
 
 
-def db_get_videos(features):
+def db_get_videos(features, sort_by_name=False):
     con = sl.connect(config['database_name'])
     videos = []
+    if sort_by_name:
+        order_stmt = 'ORDER BY video.name'
+    else:
+        order_stmt = ''
     if len(features) == 0:
-        sql = 'SELECT name, icon_uri FROM video WHERE disabled = 0'
+        sql = f'SELECT name, icon_uri FROM video WHERE disabled = 0 {order_stmt}'
     else:
         sql = f'''
             SELECT video.name, icon_uri
@@ -133,6 +137,7 @@ def db_get_videos(features):
                 AND disabled = 0
             GROUP BY video.id
             HAVING COUNT(*) = {len(features)}
+            {order_stmt}
         '''
     for row in con.execute(sql):
         vid = {
