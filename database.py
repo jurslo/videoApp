@@ -112,7 +112,7 @@ def db_add_video_feature_name(con, video_id, feature_name):
 def db_get_videos():
     con = sl.connect(config['database_name'])
     videos = []
-    for row in con.execute('SELECT name, icon_uri FROM video'):
+    for row in con.execute('SELECT name, icon_uri FROM video WHERE disabled = 0'):
         vid = {
             'name': row[0],
             'iconUri': row[1],
