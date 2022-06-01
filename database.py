@@ -109,10 +109,32 @@ def db_add_video_feature_name(con, video_id, feature_name):
     db_add_video_feature(con, video_id, feature_id)
 
 
-def db_get_videos():
+def db_get_all_features():
+    con = sl.connect(config['database_name'])
+    features = []
+    for row in con.execute('SELECT name FROM feature'):
+        features.append(row[0])
+    con.close()
+    return features
+
+
+def db_get_videos(features):
     con = sl.connect(config['database_name'])
     videos = []
-    for row in con.execute('SELECT name, icon_uri FROM video WHERE disabled = 0'):
+    if len(features) == 0:
+        sql = 'SELECT name, icon_uri FROM video WHERE disabled = 0'
+    else:
+        sql = f'''
+            SELECT video.name, icon_uri
+            FROM video
+                INNER JOIN video_feature ON video.id = video_feature.video_id
+                INNER JOIN feature ON feature.id = video_feature.feature_id
+            WHERE feature.name IN ("{'", "'.join(features)}")
+                AND disabled = 0
+            GROUP BY video.id
+            HAVING COUNT(*) = {len(features)}
+        '''
+    for row in con.execute(sql):
         vid = {
             'name': row[0],
             'iconUri': row[1],

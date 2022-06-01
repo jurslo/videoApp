@@ -3,13 +3,18 @@
     <head>
         <title>Video App</title>
         <style>
-            .filter {
-                width: max-content;
-                margin-left: auto;
-                margin-right: auto;
+            .division {
+                margin: 16px auto;
             }
-            .select {
-                width: min-content;
+            .features {
+                border-style: dashed;
+                border-width: thin;
+                margin-top: 4px;
+                padding: 4px;
+            }
+            .feature-checkbox {
+                margin-right: 16px;
+                white-space: nowrap;
             }
             .video-card {
                 width: min-content;
@@ -22,13 +27,24 @@
 
     <body>
         <div>
-            <form class="filter" method="post">
-                <div class="select">
+            <form method="post">
+                <div class="division">
                     <label for="sort-by">Sort by:</label>
                     <select name="sort-by" id="sort-by" onchange="this.form.submit()">
                         <option value="unsorted" {% if sort_by == 'unsorted' %}selected{% endif %}>Unsorted</option>
                         <option value="name" {% if sort_by == 'name' %}selected{% endif %}>Name</option>
                     </select>
+                </div>
+                <div class="division">
+                    <label for="features">Select which features are required:</label>
+                    <div class="features" id="features">
+                    {% for ftr, ftr_val in features.items() %}
+                    <span class="feature-checkbox">
+                        <input type="checkbox" name="ftr-{{ ftr }}" id="ftr-{{ ftr }}" onchange="this.form.submit()" {% if ftr_val %}checked{% endif %}>
+                        <label for="ftr-{{ ftr }}">{{ ftr }}</label>
+                    </span>
+                    {% endfor %}
+                    </div>
                 </div>
             </form>
             {% for vid in videos %}
