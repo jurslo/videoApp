@@ -8,4 +8,7 @@ config = {
 
     # Name of SQLight database file
     'database_name': 'video.db',
+
+    # How often to sync data from video manifest REST API to local database (in seconds)
+    'video_manifest_refresh_interval': 10*60
 }
