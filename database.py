@@ -22,6 +22,10 @@ from config import config
 
 
 def db_create_tables(con):
+    """Initialize database by creating all tables.
+
+    :param con: opened connection to SQLite database
+    """
     con.execute('''
         CREATE TABLE IF NOT EXISTS video (
             id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -71,12 +75,22 @@ def db_create_tables(con):
 
 
 def db_drop_tables(con):
+    """Drop all tables from database.
+
+    :param con: opened connection to SQLite database
+    """
     con.execute('DROP TABLE IF EXISTS video')
     con.execute('DROP TABLE IF EXISTS feature')
     con.execute('DROP TABLE IF EXISTS video_feature')
 
 
 def db_add_video(con, video):
+    """Add video to database.
+
+    :param con: opened connection to SQLite database
+    :param video: dictionary of video properties
+    :return: id assigned by database to added video
+    """
     cur = con.cursor()
 
     sql = '''
@@ -96,12 +110,24 @@ def db_add_video(con, video):
 
 
 def db_get_feature_id_by_name(con, name):
+    """Translate feature name to feature id.
+
+    :param con: opened connection to SQLite database
+    :param name: name of the feature
+    :return: id of the feature, None if feature wasn't found
+    """
     for row in con.execute('SELECT id FROM feature WHERE name = ?', (name,)):
         return row[0]
     return None
 
 
 def db_add_or_get_feature(con, feature_name):
+    """Add feature to database.
+
+    :param con: opened connection to SQLite database
+    :param feature_name: feature to add
+    :return: id of newly added or already existing feature
+    """
     cur = con.cursor()
 
     feature_id = db_get_feature_id_by_name(con, feature_name)
@@ -112,15 +138,31 @@ def db_add_or_get_feature(con, feature_name):
 
 
 def db_add_video_feature(con, video_id, feature_id):
+    """Pair existing video and feature in database.
+
+    :param con: opened connection to SQLite database
+    :param video_id: id of the video
+    :param feature_id: id of the feature
+    """
     con.execute('INSERT INTO video_feature(video_id, feature_id) VALUES(?, ?)', (video_id, feature_id))
 
 
 def db_add_video_feature_name(con, video_id, feature_name):
+    """Pair existing video and feature (referenced by name) in database.
+
+    :param con: opened connection to SQLite database
+    :param video_id: id of the video
+    :param feature_name: name of the feature
+    """
     feature_id = db_add_or_get_feature(con, feature_name)
     db_add_video_feature(con, video_id, feature_id)
 
 
 def db_get_all_features():
+    """Get names of all features from database.
+
+    :return: list of feature names
+    """
     con = sl.connect(config['database_name'])
     features = []
     for row in con.execute('SELECT name FROM feature'):
@@ -130,6 +172,12 @@ def db_get_all_features():
 
 
 def db_get_videos(features, sort_by_name=False):
+    """Get all videos satisfying all specified features from database.
+
+    :param features: list of names of required features
+    :param sort_by_name: if videos should be sorted by name
+    :return: list of videos satisfying all specified features
+    """
     con = sl.connect(config['database_name'])
     videos = []
     if sort_by_name:
@@ -161,6 +209,10 @@ def db_get_videos(features, sort_by_name=False):
 
 
 def db_init_from_manifest(videos):
+    """Initialize database from list of videos.
+
+    :param videos: list of videos
+    """
     con = sl.connect(config['database_name'])
     db_drop_tables(con)
     db_create_tables(con)
@@ -186,12 +238,18 @@ def db_init_from_manifest(videos):
 
 
 def db_get_videos_manifest():
+    """Download list of videos from standard URL.
+
+    :return: json specifying the videos
+    """
     r = requests.get(config['videos_manifest_url'])
     r.raise_for_status()
     return r.json()
 
 
 def db_sync_from_manifest():
+    """Download list of videos and initialize database with them.
+    """
     logging.info('Syncing video manifest to local database')
     videos = db_get_videos_manifest()
     db_init_from_manifest(videos)

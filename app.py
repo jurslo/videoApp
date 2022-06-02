@@ -27,6 +27,12 @@ app = Flask(__name__)
 
 @app.route("/", methods=['GET', 'POST'])
 def index():
+    """Handle requests to main page of the application.
+
+    Main page shows list of videos that can be ordered by name and filtered by features.
+
+    :return: rendered page
+    """
     sort_by = request.form.get('sort-by', 'unsorted')
     feature_names = db_get_all_features()
     features = {}
@@ -37,6 +43,10 @@ def index():
 
 
 def video_manifest_refresh_thread(event):
+    """Thread function to update database from URL in regular time intervals.
+
+    :param event: event signaling that the thread should stop execution
+    """
     while not event.wait(config['video_manifest_refresh_interval']):
         try:
             db_sync_from_manifest()
@@ -46,6 +56,8 @@ def video_manifest_refresh_thread(event):
 
 
 def main():
+    """Main function of the application.
+    """
     db_sync_from_manifest()
 
     event = Event()
